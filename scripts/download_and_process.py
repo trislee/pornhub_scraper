@@ -12,7 +12,7 @@ from extract_fields import get_info
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
 
-URL_LIST_FILE = '../video_urls.txt'
+URL_LIST_FILE = '../data/video_urls.txt'
 
 OUTPUT_FILE = '../data/data.ndjson'
 ERROR_FILE = '../data/error.log'
@@ -44,7 +44,7 @@ if __name__ == '__main__':
         soup = BeautifulSoup(r.content, features = 'lxml')
         info = get_info(soup)
         with open(OUTPUT_FILE, 'a') as f:
-          f.write(json.dumps(info))
+          f.write(json.dumps(info) + '\n')
 
     except Exception as e:
       message = f'url#: {i}: {url}, error: {e}\n'

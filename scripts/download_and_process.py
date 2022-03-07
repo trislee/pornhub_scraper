@@ -14,9 +14,13 @@ from extract_fields import get_info
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
 
+# List of URLs for each video page to be downloaded
 URL_LIST_FILE = '../data/video_urls_02.txt'
 
+# Text file to write JSON-serialized dicts to for each video
 OUTPUT_FILE = '../data/data.ndjson'
+
+# Log file to keep track of success/failure for each URL
 LOG_FILE = '../data/scraper.log'
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
@@ -47,7 +51,7 @@ if __name__ == '__main__':
 
   # Shuffle URL list order to avoid a making lot of failed requests at the
   # beginning of the program, which can trigger remote disconnection issues
-  url_list = random.shuffle(url_list)
+  random.shuffle(url_list)
 
   # Loop over URLs, download and process data from page of each URL
   #---------------------------------------------------------------------------#

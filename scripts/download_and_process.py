@@ -5,6 +5,7 @@
 import os
 import json
 import logging
+import random
 
 import requests
 from bs4 import BeautifulSoup
@@ -43,6 +44,10 @@ if __name__ == '__main__':
       completed_urls = [json.loads(line)['url'] for line in lines]
 
       url_list = list(set(url_list) - set(completed_urls))
+
+  # Shuffle URL list order to avoid a making lot of failed requests at the
+  # beginning of the program, which can trigger remote disconnection issues
+  url_list = random.shuffle(url_list)
 
   # Loop over URLs, download and process data from page of each URL
   #---------------------------------------------------------------------------#

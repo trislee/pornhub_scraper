@@ -10,7 +10,7 @@ import random
 import requests
 from bs4 import BeautifulSoup
 
-from extract_fields import get_info
+from extract_fields import get_video_info
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
 
@@ -18,10 +18,10 @@ from extract_fields import get_info
 URL_LIST_FILE = '../data/video_urls_02.txt'
 
 # Text file to write JSON-serialized dicts to for each video
-OUTPUT_FILE = '../data/data.ndjson'
+OUTPUT_FILE = '../data/videos.ndjson'
 
 # Log file to keep track of success/failure for each URL
-LOG_FILE = '../data/scraper.log'
+LOG_FILE = '../data/videos.log'
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
 
@@ -75,7 +75,7 @@ if __name__ == '__main__':
       else:
         # Content from the given URL was retrieved, so can be processed
         soup = BeautifulSoup(r.content, features = 'lxml')
-        info = get_info(soup)
+        info = get_video_info(soup)
 
         # Write JSON-serialized dict of all data from the video as a line in the
         # output ndjson file

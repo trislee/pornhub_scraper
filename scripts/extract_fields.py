@@ -15,6 +15,7 @@ COMMENT_API_URL = 'https://www.pornhub.com/comment/show'
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
 
 def process_number_str(s):
+  s = s.replace(',', '')
   if s.endswith('K'):
     n = int(float(s.split('K')[0]) * 1000)
   elif s.endswith('M'):
@@ -24,7 +25,7 @@ def process_number_str(s):
 
   return n
 
-def get_info(soup):
+def get_video_info(soup):
 
   metadata_soup = soup.find('script', {'type' : 'application/ld+json'})
   if metadata_soup is not None:
@@ -93,6 +94,61 @@ def get_info(soup):
     'uploader_link' : uploader_link,
     'uploader_name' : uploader_name,
     'comments' : all_comments}
+
+def get_model_info(soup):
+
+  url = soup.find('link', {'rel' : 'canonical'})['href']
+  name = soup.find('h1', {'itemprop' : 'name'}).text.strip()
+
+  cover_image = soup.find('img', {'id' : 'coverPictureDefault'})['src']
+  profile_image = soup.find('img', {'id' : 'getAvatar'})['src']
+
+  ranking_info = soup.find('div', {'class' : 'rankingInfo'})
+  ranking_keys= [div.text.strip() for div in ranking_info.find_all('div', {'class' : 'title'})]
+  ranking_values = [int(span.text.strip().replace('N/A', '-1')) for span in ranking_info.find_all('span', {'class' : 'big'})]
+  ranking_dict = dict(zip(ranking_keys, ranking_values))
+
+  views = int(soup.find('div', {'class' : 'videoViews'})['data-title'].split(': ')[-1].replace(',', ''))
+
+  subscribers_soup = [item for item in soup.find_all('div', {'class' : 'tooltipTrig'}) if 'Subscribers' in item.text][0]
+  subscribers_str = subscribers_soup['data-title'].split(': ')[-1]
+  subscribers = process_number_str(subscribers_str)
+
+  about_items = soup.find('section', {'class' : 'aboutMeSection'}).find_all('div')
+  if not about_items:
+    about = ''
+  else:
+    about = about_items[-1].text.strip()
+
+  social_list_soup = soup.find('ul', {'class' : 'socialList'})
+  if social_list_soup is None:
+    social_dict = {}
+  else:
+    social_list = social_list_soup.find_all('li')
+    social_dict = {item.text.strip() : item.find('a')['href'] for item in social_list}
+
+  info_list = soup.find('div', {'class' : 'js-infoText'}).find_all('div', {'class' : 'infoPiece'})
+  info_keys = [item.find('span').text.strip().strip(':') for item in info_list]
+  info_values = [item.find('span', {'class' : 'smallInfo'}).text.strip() for item in info_list]
+  info_dict = dict(zip(info_keys, info_values))
+
+  if 'doesn\'t have any videos yet.' in soup.text:
+    number_videos = 0
+  else:
+    number_videos = int(soup.find('div', {'class' : 'showingCounter'}).text.split('of')[-1].strip())
+
+  return {
+    'url' : url,
+    'name' : name,
+    'cover_image' : cover_image,
+    'profile_image' : profile_image,
+    'ranking_dict' : ranking_dict,
+    'views' : views,
+    'subscribers' : subscribers,
+    'about' : about,
+    'social_dict' : social_dict,
+    'info_dict' : info_dict,
+    'number_videos' : number_videos}
 
 def metadata_alternative(soup):
 

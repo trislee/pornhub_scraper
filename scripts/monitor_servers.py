@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 PEM_FILE = '~/.aws/pornhub.pem'
 
 LOG_PATH = '/home/ubuntu/pornhub_scraper/data/scraper.log'
+DATA_PATH = '/home/ubuntu/pornhub_scraper/data/data.ndjson'
 
 IP_ADDRESS_LIST = '../../ec2_ip_list.txt'
 OUTPUT_DIR = Path('../data', 'logs')
@@ -21,6 +22,8 @@ OUTPUT_DIR = Path('../data', 'logs')
 STATUS_DICT = {
   'success' : 1.0,
   'failed' : 0.0}
+
+COPY_DATA = False
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
 
@@ -33,7 +36,7 @@ def log_to_df(log_file):
 
   for line in lines:
     keyvals = [keyval.strip() for keyval in line.split('|')]
-    row = dict([tuple(keyval.split(': ')) for keyval in keyvals])
+    row = dict([tuple(keyval.split(': '))[:2] for keyval in keyvals])
     row_list.append(row)
 
   df = pd.DataFrame(row_list)
@@ -60,6 +63,11 @@ if __name__ == '__main__':
     output_file = output_subdir/f'scraper_{i:02d}.txt'
     scp_command = f'scp -i {PEM_FILE} ubuntu@{ip_address}:{LOG_PATH} {output_file}'
     os.system(scp_command)
+
+    if COPY_DATA:
+      output_file = output_subdir/f'data_{i:02d}.ndjson'
+      scp_command = f'scp -i {PEM_FILE} ubuntu@{ip_address}:{DATA_PATH} {output_file}'
+      os.system(scp_command)
 
   #---------------------------------------------------------------------------#
 
